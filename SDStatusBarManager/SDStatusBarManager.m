@@ -30,6 +30,7 @@
 
 static NSString * const SDStatusBarManagerUsingOverridesKey = @"using_overrides";
 static NSString * const SDStatusBarManagerBluetoothStateKey = @"bluetooth_state";
+static NSString * const SDStatusBarManagerHideBatteryPercentageKey = @"hide_battery_percentage";
 static NSString * const SDStatusBarManagerTimeStringKey = @"time_string";
 
 @interface SDStatusBarManager ()
@@ -47,6 +48,7 @@ static NSString * const SDStatusBarManagerTimeStringKey = @"time_string";
   self.overrider.carrierName = self.carrierName;
   self.overrider.bluetoothEnabled = self.bluetoothState != SDStatusBarManagerBluetoothHidden;
   self.overrider.bluetoothConnected = self.bluetoothState == SDStatusBarManagerBluetoothVisibleConnected;
+  self.overrider.hideBatteryPercentage = self.hideBatteryPercentage;
 
   [self.overrider enableOverrides];
 }
@@ -84,6 +86,23 @@ static NSString * const SDStatusBarManagerTimeStringKey = @"time_string";
 - (SDStatusBarManagerBluetoothState)bluetoothState
 {
   return [[self.userDefaults valueForKey:SDStatusBarManagerBluetoothStateKey] integerValue];
+}
+
+- (void)setHideBatteryPercentage:(BOOL)hideBatteryPercentage
+{
+  if (self.hideBatteryPercentage == hideBatteryPercentage) return;
+
+  [self.userDefaults setValue:@(hideBatteryPercentage) forKey:SDStatusBarManagerHideBatteryPercentageKey];
+
+  if (self.usingOverrides) {
+    // Refresh the active status bar
+    [self enableOverrides];
+  }
+}
+
+- (BOOL)hideBatteryPercentage
+{
+  return [self.userDefaults valueForKey:SDStatusBarManagerHideBatteryPercentageKey];
 }
 
 - (void)setTimeString:(NSString *)timeString
