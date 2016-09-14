@@ -1,7 +1,7 @@
 // --------------------------------------------------------------------------------
 // The MIT License (MIT)
 //
-// Copyright (c) 2014 Shiny Development
+// Copyright (c) 2014-2016 Shiny Development
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,18 +23,8 @@
 // --------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
+#import "SDStatusBarOverrider.h"
 
-@protocol SDStatusBarOverrider <NSObject>
-
-@property (copy, nonatomic) NSString *timeString;
-@property (copy, nonatomic) NSString* carrierName;
-
-@property (assign, nonatomic) BOOL bluetoothEnabled;
-@property (assign, nonatomic) BOOL bluetoothConnected;
-
-@property (assign, nonatomic) BOOL hideBatteryPercentage;
-
-- (void)enableOverrides;
-- (void)disableOverrides;
+@interface SDStatusBarOverriderPost10_0 : NSObject <SDStatusBarOverrider>
 
 @end

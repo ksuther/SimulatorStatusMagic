@@ -27,6 +27,8 @@
 #import "SDStatusBarOverriderPre8_3.h"
 #import "SDStatusBarOverriderPost8_3.h"
 #import "SDStatusBarOverriderPost9_0.h"
+#import "SDStatusBarOverriderPost9_3.h"
+#import "SDStatusBarOverriderPost10_0.h"
 
 static NSString * const SDStatusBarManagerUsingOverridesKey = @"using_overrides";
 static NSString * const SDStatusBarManagerBluetoothStateKey = @"bluetooth_state";
@@ -34,8 +36,10 @@ static NSString * const SDStatusBarManagerHideBatteryPercentageKey = @"hide_batt
 static NSString * const SDStatusBarManagerTimeStringKey = @"time_string";
 
 @interface SDStatusBarManager ()
+
 @property (nonatomic, strong) NSUserDefaults *userDefaults;
 @property (nonatomic, strong) id <SDStatusBarOverrider> overrider;
+
 @end
 
 @implementation SDStatusBarManager
@@ -130,18 +134,29 @@ static NSString * const SDStatusBarManagerTimeStringKey = @"time_string";
   return _userDefaults;
 }
 
++ (id<SDStatusBarOverrider>)overriderForSystemVersion:(NSString *)systemVersion
+{
+  id<SDStatusBarOverrider> overrider = nil;
+  NSProcessInfo *pi = [NSProcessInfo processInfo];
+  if ([pi isOperatingSystemAtLeastVersion:(NSOperatingSystemVersion){ 10, 0, 0 }]) {
+    overrider = [SDStatusBarOverriderPost10_0 new];
+  } else if ([pi isOperatingSystemAtLeastVersion:(NSOperatingSystemVersion){ 9, 3, 0 }]) {
+    overrider = [SDStatusBarOverriderPost9_3 new];
+  } else if ([pi isOperatingSystemAtLeastVersion:(NSOperatingSystemVersion){ 9, 0, 0 }]) {
+    overrider = [SDStatusBarOverriderPost9_0 new];
+  } else if ([pi isOperatingSystemAtLeastVersion:(NSOperatingSystemVersion){ 8, 3, 0 }]) {
+    overrider = [SDStatusBarOverriderPost8_3 new];
+  } else {
+    overrider = [SDStatusBarOverriderPre8_3 new];
+  }
+  return overrider;
+}
+
 - (id<SDStatusBarOverrider>)overrider
 {
   if (!_overrider) {
-    BOOL before9_0 = ([[[UIDevice currentDevice] systemVersion] compare:@"9.0" options:NSNumericSearch] == NSOrderedAscending);
-    BOOL before8_3 = ([[[UIDevice currentDevice] systemVersion] compare:@"8.3" options:NSNumericSearch] == NSOrderedAscending);
-    if (before8_3) {
-      _overrider = [SDStatusBarOverriderPre8_3 new];
-    } else if (before9_0) {
-      _overrider = [SDStatusBarOverriderPost8_3 new];
-    } else {
-      _overrider = [SDStatusBarOverriderPost9_0 new];
-    }
+    NSString *systemVersion = [[UIDevice currentDevice] systemVersion];
+    _overrider = [SDStatusBarManager overriderForSystemVersion:systemVersion];
   }
   return _overrider;
 }
