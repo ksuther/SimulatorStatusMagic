@@ -169,6 +169,7 @@ typedef struct {
 @synthesize carrierName;
 @synthesize bluetoothConnected;
 @synthesize bluetoothEnabled;
+@synthesize hideBatteryPercentage;
 
 - (void)enableOverrides
 {
@@ -195,10 +196,17 @@ typedef struct {
   strcpy(overrides->values.serviceString, [carrierText cStringUsingEncoding:NSUTF8StringEncoding]);
 
   // Battery
-  overrides->booloverrideItemIsEnabled[ItemIsEnabledBatteryDetailString] = 1;
-  overrides->values.boolitemIsEnabled[ItemIsEnabledBatteryDetailString] = 1;
-  overrides->overrideBatteryDetailString = 1;
-  strcpy(overrides->values.batteryDetailString, [@"100%" cStringUsingEncoding:NSUTF8StringEncoding]);
+  if (self.hideBatteryPercentage) {
+    overrides->booloverrideItemIsEnabled[ItemIsEnabledBatteryDetailString] = 0;
+    overrides->values.boolitemIsEnabled[ItemIsEnabledBatteryDetailString] = 0;
+    overrides->overrideBatteryDetailString = 0;
+    strcpy(overrides->values.batteryDetailString, "");
+  } else {
+    overrides->booloverrideItemIsEnabled[ItemIsEnabledBatteryDetailString] = 1;
+    overrides->values.boolitemIsEnabled[ItemIsEnabledBatteryDetailString] = 1;
+    overrides->overrideBatteryDetailString = 1;
+    strcpy(overrides->values.batteryDetailString, [@"100%" cStringUsingEncoding:NSUTF8StringEncoding]);
+  }
   
   // Bluetooth
   overrides->booloverrideItemIsEnabled[ItemIsEnabledBatteryBluetoothIcon] = self.bluetoothEnabled;

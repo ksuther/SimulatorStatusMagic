@@ -172,6 +172,7 @@ typedef struct {
 @synthesize carrierName;
 @synthesize bluetoothConnected;
 @synthesize bluetoothEnabled;
+@synthesize hideBatteryPercentage;
 
 - (void)enableOverrides
 {
@@ -198,10 +199,18 @@ typedef struct {
   strcpy(overrides->values.carrierString, [carrierText cStringUsingEncoding:NSUTF8StringEncoding]);
 
   // Battery: 100% and unpluged
-  overrides->shouldOverrideBattery = 1;
-  overrides->values.battery = 100;
-  overrides->shouldOverrideBatteryState = 1;
-  overrides->values.batteryState = BatteryStateUnplugged;
+  if (self.hideBatteryPercentage) {
+    overrides->shouldOverrideBattery = 1;
+    overrides->values.battery = 100;
+    overrides->shouldOverrideBatteryState = 1;
+    overrides->values.batteryState = BatteryStateUnplugged;
+    strcpy(overrides->values.batteryString, "");
+  } else {
+    overrides->shouldOverrideBattery = 1;
+    overrides->values.battery = 100;
+    overrides->shouldOverrideBatteryState = 1;
+    overrides->values.batteryState = BatteryStateUnplugged;
+  }
 
   // Bluetooth
   overrides->shouldOverrideEnabled[Bluetooth] = !!self.bluetoothEnabled;
